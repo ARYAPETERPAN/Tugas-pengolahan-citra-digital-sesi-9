@@ -1,0 +1,67 @@
+import imageio
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Fungsi untuk mengaplikasikan operator Robert
+def robert_operator(image):
+    # Operator Robert
+    robert_x = np.array([[1, 0], [0, -1]])
+    robert_y = np.array([[0, 1], [-1, 0]])
+
+    # Konvolusi dengan operator Robert
+    edges_x = np.zeros(image.shape)
+    edges_y = np.zeros(image.shape)
+    for i in range(1, image.shape[0] - 1):
+        for j in range(1, image.shape[1] - 1):
+            patch = image[i-1:i+1, j-1:j+1]
+            edges_x[i, j] = np.sum(patch * robert_x)
+            edges_y[i, j] = np.sum(patch * robert_y)
+
+    # Gabungkan hasil konvolusi
+    edges = np.sqrt(edges_x**2 + edges_y**2)
+
+    return edges
+
+# Fungsi untuk mengaplikasikan operator Sobel
+def sobel_operator(image):
+    # Operator Sobel
+    sobel_x = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])
+    sobel_y = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]])
+
+    # Konvolusi dengan operator Sobel
+    edges_x = np.zeros(image.shape)
+    edges_y = np.zeros(image.shape)
+    for i in range(1, image.shape[0] - 1):
+        for j in range(1, image.shape[1] - 1):
+            patch = image[i-1:i+2, j-1:j+2]
+            edges_x[i, j] = np.sum(patch * sobel_x)
+            edges_y[i, j] = np.sum(patch * sobel_y)
+
+    # Gabungkan hasil konvolusi
+    edges = np.sqrt(edges_x**2 + edges_y**2)
+
+    return edges
+
+# Baca gambar
+image = imageio.imread('gambar.jpg', as_gray=True)
+
+# Aplikasikan operator Robert dan Sobel
+edges_robert = robert_operator(image)
+edges_sobel = sobel_operator(image)
+
+# Tampilkan hasil
+plt.figure(figsize=(10, 5))
+
+plt.subplot(1, 3, 1)
+plt.imshow(image, cmap='gray')
+plt.title('Gambar Asli')
+
+plt.subplot(1, 3, 2)
+plt.imshow(edges_robert, cmap='gray')
+plt.title('Deteksi Tepi dengan Operator Robert')
+
+plt.subplot(1, 3, 3)
+plt.imshow(edges_sobel, cmap='gray')
+plt.title('Deteksi Tepi dengan Operator Sobel')
+
+plt.show()
